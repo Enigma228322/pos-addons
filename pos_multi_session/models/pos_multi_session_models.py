@@ -66,6 +66,7 @@ class PosConfig(models.Model):
     @api.multi
     def open_ui(self):
         res = super(PosConfig, self).open_ui()
+        import wdb;wdb.set_trace()
         active_sessions = self.env['pos.session'].search(
             [('state', '!=', 'closed'), ('config_id.multi_session_id', '=', self.multi_session_id.id)])
         if len(active_sessions) == 1 and active_sessions.id == self.current_session_id.id and self.multi_session_id.load_unpaid_orders:
@@ -120,6 +121,7 @@ class PosMultiSession(models.Model):
     @api.multi
     def get_unpaid_ms_orders(self):
         self.ensure_one()
+        import wdb;wdb.set_trace()
         pos_multi_session_sync = self.env['pos_multi_session_sync.multi_session'].search([('multi_session_ID', '=', self.id)])
         if self.load_orders_of_last_n_days:
             limit_date = datetime.datetime.utcnow() - datetime.timedelta(days=self.number_of_days)
@@ -128,7 +130,7 @@ class PosMultiSession(models.Model):
                                                                     ('state', '=', 'unpaid'),
                                                                     ('write_date', '>=', limit_date_str)])
 
-        return self.env['pos_multi_session_sync.order'].search([('multi_session_ID', 'in', pos_multi_session_sync.ids),
+        return self.env['pos_multi_session_sync.order'].search([('multi_session_ID', '=', pos_multi_session_sync.multi_session_ID),
                                                                 ('state', '=', 'unpaid')])
 
     @api.multi
